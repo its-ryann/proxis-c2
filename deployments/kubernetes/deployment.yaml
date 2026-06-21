@@ -1,0 +1,106 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: proxis-c2-server
+  labels:
+    app: proxis-c2
+    component: server
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: proxis-c2
+      component: server
+  template:
+    metadata:
+      labels:
+        app: proxis-c2
+        component: server
+    spec:
+      containers:
+      - name: proxis-server
+        image: proxis-c2:latest
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 443
+          name: grpc
+          protocol: TCP
+        volumeMounts:
+        - name: certs
+          mountPath: /etc/proxis/certs
+          readOnly: true
+        - name: keys
+          mountPath: /etc/proxis/keys
+          readOnly: true
+        - name: logs
+          mountPath: /var/log/proxis
+        env:
+        - name: PROXIS_CONFIG_PATH
+          value: /app/configs/server.yaml
+        resources:
+          requests:
+            memory: "128Mi"
+            cpu: "100m"
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
+        livenessProbe:
+          tcpSocket:
+            port: 443
+          initialDelaySeconds: 30
+          periodSeconds: 60
+        readinessProbe:
+          tcpSocket:
+            port: 443
+          initialDelaySeconds: 5
+          periodSeconds: 10
+      volumes:
+      - name: certs
+        secret:
+          secretName: proxis-certs
+      - name: keys
+        secret:
+          secretName: proxis-keys
+      - name: logs
+        emptyDir: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: proxis-c2-server
+  labels:
+    app: proxis-c2
+    component: server
+spec:
+  type: ClusterIP
+  ports:
+  - port: 443
+    targetPort: 443
+    name: grpc
+    protocol: TCP
+  selector:
+    app: proxis-c2
+    component: server
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: proxis-certs
+  labels:
+    app: proxis-c2
+type: Opaque
+data:
+  ca.crt: ""
+  server.crt: ""
+  server.key: ""
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: proxis-keys
+  labels:
+    app: proxis-c2
+type: Opaque
+data:
+  master.key: ""
+  hmac.secret: ""
