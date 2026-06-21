@@ -1,0 +1,57 @@
+syntax = "proto3";
+
+package proxis.c2.v1;
+
+option go_package = "github.com/proxis-c2/proxis-c2/internal/common/protocol";
+
+// AgentHello is sent by an agent when it first connects to the C2 server
+message AgentHello {
+    string agent_id = 1;
+    string hostname = 2;
+    string platform = 3;
+    string ip_address = 4;
+    int64 timestamp = 5;
+}
+
+// Beacon is sent periodically by agents to maintain connection
+message Beacon {
+    string agent_id = 1;
+    int64 timestamp = 2;
+    bytes encrypted_payload = 3;
+}
+
+// Task represents a command to be executed by an agent
+message Task {
+    string task_id = 1;
+    string agent_id = 2;
+    TaskType type = 3;
+    bytes encrypted_data = 4;
+}
+
+// TaskResult is the result of a task execution
+message TaskResult {
+    string task_id = 1;
+    string agent_id = 2;
+    bool success = 3;
+    bytes encrypted_output = 4;
+    int64 timestamp = 5;
+}
+
+// TaskType defines the type of task to execute
+enum TaskType {
+    TASK_EXECUTE = 0;
+    TASK_UPLOAD = 1;
+    TASK_DOWNLOAD = 2;
+    TASK_KILL = 3;
+}
+
+// AgentInfo contains information about a connected agent
+message AgentInfo {
+    string agent_id = 1;
+    string hostname = 2;
+    string platform = 3;
+    string ip_address = 4;
+    int64 first_seen = 5;
+    int64 last_beacon = 6;
+    bool online = 7;
+}
