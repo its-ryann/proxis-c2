@@ -1,0 +1,27 @@
+# proxis-c2 Server Configuration
+# Enterprise-grade C2 server configuration for adversary emulation and resilience testing
+
+server:
+  listen_address: "0.0.0.0"
+  listen_port: 443
+  tls:
+    cert_path: "/etc/proxis/certs/server.crt"
+    key_path: "/etc/proxis/certs/server.key"
+    ca_path: "/etc/proxis/certs/ca.crt"
+    require_client_cert: true
+  max_connections: 10000
+  connection_timeout: "30s"
+
+database:
+  type: "sqlite"  # Options: "sqlite" or "postgres"
+  path: "/var/lib/proxis/data.db"
+  pool_size: 25
+
+logging:
+  level: "info"
+  format: "json"
+  output: "/var/log/proxis/server.log"
+
+security:
+  encryption_key_path: "/etc/proxis/keys/master.key"
+  hmac_secret_path: "/etc/proxis/keys/hmac.secret"
