@@ -1,0 +1,28 @@
+# proxis-c2 Agent Configuration
+# Agent configuration for cross-platform C2 communication
+
+c2:
+  server_address: "c2.proxis.internal"
+  server_port: 443
+  use_tls: true
+  ca_cert_path: "/etc/proxis/certs/ca.crt"
+  client_cert_path: "/etc/proxis/certs/agent.crt"
+  client_key_path: "/etc/proxis/certs/agent.key"
+
+beacon:
+  base_interval: "60s"
+  jitter_min: 0.2
+  jitter_max: 0.5
+  max_retries: 3
+  retry_backoff: "5s"
+
+evasion:
+  sandbox_detection: true
+  debugger_detection: true
+  vm_detection: true
+  sleep_on_detection: "86400s"  # 24 hours
+
+kill_switch:
+  enabled: true
+  max_no_contact: "28800s"  # 8 hours
+  auto_cleanup: true
